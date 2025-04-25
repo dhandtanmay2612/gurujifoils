@@ -31,8 +31,10 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submission started:', { formData });
+    
     try {
-      // Replace '/api/contact' with your actual API endpoint for form submission
+      console.log('Sending request to /api/contact');
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
@@ -41,20 +43,40 @@ const Contact = () => {
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        toast.success("Thank you for your message! We'll get back to you soon.");
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          inquiryType: '',
-          message: ''
+      console.log('Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Server error details:', {
+          status: response.status,
+          errorData,
         });
-      } else {
-        toast.error("Oops! Something went wrong. Please try again.");
+        toast.error(errorData.error || "Oops! Something went wrong. Please try again.");
+        return;
       }
+
+      const responseData = await response.json();
+      console.log('Success response:', responseData);
+      
+      toast.success("Thank you for your message! We'll get back to you soon.");
+      console.log('Form reset initiated');
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        inquiryType: '',
+        message: ''
+      });
+      console.log('Form reset completed');
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Form submission error:', {
+        error,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        formData,
+      });
       toast.error("Oops! Something went wrong. Please try again.");
     }
   };

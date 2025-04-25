@@ -1,38 +1,62 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
-// Validate email configuration
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-  throw new Error('Email configuration is missing. Please set EMAIL_USER and EMAIL_PASSWORD environment variables.');
+// Initialize transporter outside of the route handler for reuse
+let transporter: nodemailer.Transporter | null = null;
+
+// Initialize the transporter
+async function initializeTransporter() {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    console.error('Missing email configuration');
+    throw new Error('Email configuration is missing');
+  }
+
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    // Verify the connection
+    try {
+      await transporter.verify();
+      console.log('Email server connection verified');
+    } catch (error) {
+      console.error('Email server verification failed:', error);
+      transporter = null;
+      throw error;
+    }
+  }
+
+  return transporter;
 }
 
-// Create reusable transporter
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
-
-// Validate email configuration
-transporter.verify(function (error) {
-  if (error) {
-    console.error('Email configuration error:', error);
-  } else {
-    console.log('Email server is ready to send messages');
-  }
-});
-
 export async function POST(request: Request) {
+  console.log('Received contact form submission');
+  
   try {
+    // Initialize email transporter
+    const emailTransporter = await initializeTransporter();
+    
+    // Parse and validate request body
     const body = await request.json();
     const { name, email, phone, inquiryType, message } = body;
 
     // Validate required fields
-    if (!name || !email || !phone || !inquiryType || !message) {
+    const missingFields = [];
+    if (!name) missingFields.push('name');
+    if (!email) missingFields.push('email');
+    if (!phone) missingFields.push('phone');
+    if (!inquiryType) missingFields.push('inquiryType');
+    if (!message) missingFields.push('message');
+
+    if (missingFields.length > 0) {
+      console.error('Missing required fields:', { missingFields });
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { error: `Missing required fields: ${missingFields.join(', ')}` },
         { status: 400 }
       );
     }
@@ -40,22 +64,25 @@ export async function POST(request: Request) {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.error('Invalid email format:', { email });
       return NextResponse.json(
         { error: 'Invalid email format' },
         { status: 400 }
       );
     }
 
-    // Validate phone number format (10 digits)
+    // Validate phone number (10 digits)
     const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(phone.replace(/\D/g, ''))) {
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      console.error('Invalid phone number format:', { phone });
       return NextResponse.json(
-        { error: 'Invalid phone number format' },
+        { error: 'Please enter a valid 10-digit phone number' },
         { status: 400 }
       );
     }
 
-    // Email content with better formatting
+    // Prepare email content
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: process.env.EMAIL_USER,
@@ -81,14 +108,21 @@ export async function POST(request: Request) {
     };
 
     // Send email
-    await transporter.sendMail(mailOptions);
+    console.log('Sending email...');
+    await emailTransporter.sendMail(mailOptions);
+    console.log('Email sent successfully');
 
     return NextResponse.json(
       { message: 'Email sent successfully' },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error in contact form API:', {
+      error,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    
     return NextResponse.json(
       { error: 'Failed to send email. Please try again later.' },
       { status: 500 }
