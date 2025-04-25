@@ -34,7 +34,7 @@ const Contact = () => {
     console.log('Form submission started:', { formData });
     
     try {
-      console.log('Sending request to /api/contact');
+      console.log('Sending request to API');
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
@@ -43,26 +43,18 @@ const Contact = () => {
         body: JSON.stringify(formData),
       });
 
+      const data = await response.json();
       console.log('Response received:', {
         status: response.status,
-        statusText: response.statusText,
+        data,
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Server error details:', {
-          status: response.status,
-          errorData,
-        });
-        toast.error(errorData.error || "Oops! Something went wrong. Please try again.");
+        toast.error(data.error || "Oops! Something went wrong. Please try again.");
         return;
       }
 
-      const responseData = await response.json();
-      console.log('Success response:', responseData);
-      
       toast.success("Thank you for your message! We'll get back to you soon.");
-      console.log('Form reset initiated');
       setFormData({
         name: '',
         email: '',
@@ -70,14 +62,13 @@ const Contact = () => {
         inquiryType: '',
         message: ''
       });
-      console.log('Form reset completed');
     } catch (error) {
       console.error('Form submission error:', {
         error,
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
         formData,
       });
-      toast.error("Oops! Something went wrong. Please try again.");
+      toast.error("Network error. Please check your connection and try again.");
     }
   };
 

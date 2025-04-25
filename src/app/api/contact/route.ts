@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
 // Initialize transporter outside of the route handler for reuse
@@ -34,7 +34,7 @@ async function initializeTransporter() {
   return transporter;
 }
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   console.log('Received contact form submission');
   
   try {
@@ -42,40 +42,39 @@ export async function POST(request: Request) {
     const emailTransporter = await initializeTransporter();
     
     // Parse and validate request body
-    const body = await request.json();
+    const body = await req.json();
+    console.log('Received body:', body);
+
     const { name, email, phone, inquiryType, message } = body;
 
     // Validate required fields
-    const missingFields = [];
-    if (!name) missingFields.push('name');
-    if (!email) missingFields.push('email');
-    if (!phone) missingFields.push('phone');
-    if (!inquiryType) missingFields.push('inquiryType');
-    if (!message) missingFields.push('message');
-
-    if (missingFields.length > 0) {
-      console.error('Missing required fields:', { missingFields });
+    if (!name || !email || !phone || !inquiryType || !message) {
       return NextResponse.json(
-        { error: `Missing required fields: ${missingFields.join(', ')}` },
+        { error: 'All fields are required' },
         { status: 400 }
       );
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      console.error('Invalid email format:', { email });
+    // Basic validation
+    if (typeof name !== 'string' || typeof email !== 'string' || 
+        typeof phone !== 'string' || typeof message !== 'string') {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: 'Invalid data types provided' },
         { status: 400 }
       );
     }
 
-    // Validate phone number (10 digits)
-    const phoneRegex = /^\d{10}$/;
+    // Simple email validation
+    if (!email.includes('@')) {
+      return NextResponse.json(
+        { error: 'Please enter a valid email address' },
+        { status: 400 }
+      );
+    }
+
+    // Simple phone validation (just check if it has 10 digits after removing non-digits)
     const cleanPhone = phone.replace(/\D/g, '');
-    if (!phoneRegex.test(cleanPhone)) {
-      console.error('Invalid phone number format:', { phone });
+    if (cleanPhone.length !== 10) {
       return NextResponse.json(
         { error: 'Please enter a valid 10-digit phone number' },
         { status: 400 }
@@ -120,7 +119,6 @@ export async function POST(request: Request) {
     console.error('Error in contact form API:', {
       error,
       errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
     });
     
     return NextResponse.json(
