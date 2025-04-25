@@ -11,6 +11,7 @@ const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     inquiryType: '',
     message: ''
   });
@@ -45,6 +46,7 @@ const Contact = () => {
         setFormData({
           name: '',
           email: '',
+          phone: '',
           inquiryType: '',
           message: ''
         });
@@ -152,7 +154,7 @@ const Contact = () => {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium mb-2">Name</label>
+                  <label htmlFor="name" className="block text-sm font-medium mb-2 text-black">Name *</label>
                   <Input
                     id="name"
                     name="name"
@@ -160,11 +162,12 @@ const Contact = () => {
                     onChange={handleChange}
                     placeholder="Your Name"
                     required
+                    className="text-black"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-2">Email</label>
+                  <label htmlFor="email" className="block text-sm font-medium mb-2 text-black">Email *</label>
                   <Input
                     id="email"
                     name="email"
@@ -173,13 +176,30 @@ const Contact = () => {
                     onChange={handleChange}
                     placeholder="your.email@example.com"
                     required
+                    className="text-black"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="inquiryType" className="block text-sm font-medium mb-2">Inquiry Type</label>
-                  <Select onValueChange={handleSelectChange} value={formData.inquiryType}>
-                    <SelectTrigger>
+                  <label htmlFor="phone" className="block text-sm font-medium mb-2 text-black">Phone Number *</label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="+91-XXXXXXXXXX"
+                    required
+                    pattern="[0-9]{10}"
+                    title="Please enter a valid 10-digit phone number"
+                    className="text-black"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="inquiryType" className="block text-sm font-medium mb-2 text-black">Inquiry Type *</label>
+                  <Select onValueChange={handleSelectChange} value={formData.inquiryType} required>
+                    <SelectTrigger className="text-black">
                       <SelectValue placeholder="Select inquiry type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -192,7 +212,7 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium mb-2">Message</label>
+                  <label htmlFor="message" className="block text-sm font-medium mb-2 text-black">Message *</label>
                   <Textarea
                     id="message"
                     name="message"
@@ -201,6 +221,7 @@ const Contact = () => {
                     placeholder="Your message..."
                     rows={5}
                     required
+                    className="text-black"
                   />
                 </div>
 
