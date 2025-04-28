@@ -1,14 +1,13 @@
-
 import { useEffect } from 'react';
-import Navbar from '@/components/Navbar';
-import Hero from '@/components/Hero';
-import About from '@/components/About';
-import Products from '@/components/Products';
-import Operations from '@/components/Operations';
-import Gallery from '@/components/Gallery';
-import Contact from '@/components/Contact';
-import Footer from '@/components/Footer';
-import BackToTop from '@/components/BackToTop';
+import Navbar from '../components/Navbar';
+import Hero from '../components/Hero';
+import About from '../components/About';
+import Products from '../components/Products';
+import Operations from '../components/Operations';
+import Gallery from '../components/Gallery';
+import Contact from '../components/Contact';
+import Footer from '../components/Footer';
+import BackToTop from '../components/BackToTop';
 
 const Index = () => {
   useEffect(() => {

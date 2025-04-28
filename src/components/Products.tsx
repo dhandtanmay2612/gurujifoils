@@ -52,6 +52,12 @@ const Products = () => {
       icon: "/images/temp.jpeg",
       fullDescription: "Specialized foils for dynamic use cases, both heat-sensitive and non-sensitive depending on application needs."
     },
+    {
+      title: "Decorative Foils",
+      description: "Add elegance and sparkle to every surface",
+      icon: "/images/deco-foils.jpeg",
+      fullDescription: "Ideal for enhancing packaging, gifts, and craft projects. Our decorative foils bring luxury and charm to any creation."
+    }
   ];
 
   const handleCardClick = (product: Product) => {
@@ -71,7 +77,7 @@ const Products = () => {
           ref={ref} 
           className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-1000 ${inView ? 'opacity-100' : 'opacity-0 translate-y-10'}`}
         >
-          {products.map((product, index) => (
+          {products.slice(0, 6).map((product, index) => (
             <div 
               key={index}
               onClick={() => handleCardClick(product)}
@@ -84,6 +90,19 @@ const Products = () => {
               </div>
             </div>
           ))}
+        </div>
+        {/* Decorative Foils Card - Centered */}
+        <div className="flex justify-center mt-8">
+          <div 
+            onClick={() => handleCardClick(products[6])}
+            className="product-card cursor-pointer transition-all duration-500 w-full max-w-md"
+          >
+            <div className="h-48 bg-center bg-cover" style={{ backgroundImage: `url(${products[6].icon})` }}></div>
+            <div className="p-6">
+              <h3 className="text-xl font-bold font-heading mb-2 text-guruji-deep-blue">{products[6].title}</h3>
+              <p className="text-gray-600">{products[6].description}</p>
+            </div>
+          </div>
         </div>
       </div>
 
