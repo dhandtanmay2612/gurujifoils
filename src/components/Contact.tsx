@@ -1,11 +1,20 @@
 import { useState } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { MapPin, Phone, Mail, Globe, User, Send, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MapPin, Phone, Mail, Globe, User, Send, Download, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { toast } from 'sonner';
+
+// Helper to determine the correct API URL based on environment
+const getApiUrl = () => {
+  // Check if we're in production (Vercel) or development
+  // In production, use a relative path which will be handled by Vercel's serverless functions
+  return process.env.NODE_ENV === 'production' 
+    ? '/api/contact' 
+    : 'http://localhost:8081/api/contact';
+};
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +24,7 @@ const Contact = () => {
     inquiryType: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.2,
@@ -31,11 +41,17 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submission started:', { formData });
+    
+    // Show loading toast
+    const loadingToast = toast.loading('Sending your message...', {
+      icon: <Loader2 className="animate-spin h-5 w-5" />,
+      duration: 10000 // 10 seconds timeout
+    });
+    
+    setIsSubmitting(true);
     
     try {
-      console.log('Sending request to API');
-      const response = await fetch('/api/contact', {
+      const response = await fetch(getApiUrl(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,18 +59,41 @@ const Contact = () => {
         body: JSON.stringify(formData),
       });
 
+      // Dismiss the loading toast
+      toast.dismiss(loadingToast);
+      
       const data = await response.json();
-      console.log('Response received:', {
-        status: response.status,
-        data,
-      });
 
       if (!response.ok) {
-        toast.error(data.error || "Oops! Something went wrong. Please try again.");
+        toast.error(
+          <div className="flex flex-col">
+            <span className="font-semibold text-base">Message Not Sent</span>
+            <span className="text-sm mt-1">{data.error || "Something went wrong. Please try again."}</span>
+          </div>,
+          {
+            icon: <AlertCircle className="h-5 w-5 text-red-500" />,
+            duration: 5000
+          }
+        );
         return;
       }
 
-      toast.success("Thank you for your message! We'll get back to you soon.");
+      // Success toast
+      toast.success(
+        <div className="flex flex-col">
+          <span className="font-semibold text-base">Message Sent Successfully!</span>
+          <span className="text-sm mt-1">Thank you for contacting Guruji Foils. We'll get back to you soon.</span>
+          {data.customerEmail && (
+            <span className="text-xs mt-2">A confirmation email has been sent to {data.customerEmail}</span>
+          )}
+        </div>,
+        {
+          icon: <Check className="h-5 w-5 text-green-500" />,
+          duration: 6000
+        }
+      );
+      
+      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -63,12 +102,21 @@ const Contact = () => {
         message: ''
       });
     } catch (error) {
-      console.error('Form submission error:', {
-        error,
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
-        formData,
-      });
-      toast.error("Network error. Please check your connection and try again.");
+      // Dismiss the loading toast
+      toast.dismiss(loadingToast);
+      
+      toast.error(
+        <div className="flex flex-col">
+          <span className="font-semibold text-base">Connection Error</span>
+          <span className="text-sm mt-1">Network error. Please check your connection and try again.</span>
+        </div>,
+        {
+          icon: <AlertCircle className="h-5 w-5 text-red-500" />,
+          duration: 5000
+        }
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -176,6 +224,7 @@ const Contact = () => {
                     placeholder="Your Name"
                     required
                     className="text-black"
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -190,6 +239,7 @@ const Contact = () => {
                     placeholder="your.email@example.com"
                     required
                     className="text-black"
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -206,12 +256,13 @@ const Contact = () => {
                     pattern="[0-9]{10}"
                     title="Please enter a valid 10-digit phone number"
                     className="text-black"
+                    disabled={isSubmitting}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="inquiryType" className="block text-sm font-medium mb-2 text-black">Inquiry Type *</label>
-                  <Select onValueChange={handleSelectChange} value={formData.inquiryType} required>
+                  <Select onValueChange={handleSelectChange} value={formData.inquiryType} disabled={isSubmitting}>
                     <SelectTrigger className="text-black">
                       <SelectValue placeholder="Select inquiry type" />
                     </SelectTrigger>
@@ -235,12 +286,26 @@ const Contact = () => {
                     rows={5}
                     required
                     className="text-black"
+                    disabled={isSubmitting}
                   />
                 </div>
 
-                <Button type="submit" className="flex items-center gap-2 w-full bg-guruji-purple hover:bg-guruji-deep-blue transition-colors">
-                  <Send className="w-4 h-4" />
-                  Send Message
+                <Button 
+                  type="submit" 
+                  className="flex items-center gap-2 w-full bg-guruji-purple hover:bg-guruji-deep-blue transition-colors"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Send Message
+                    </>
+                  )}
                 </Button>
               </form>
             </div>
