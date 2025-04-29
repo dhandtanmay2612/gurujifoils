@@ -13,6 +13,20 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Request headers:', JSON.stringify(req.headers, null, 2));
+  console.log('Request body:', JSON.stringify(req.body, null, 2));
+  next();
+});
+
+// Log environment check
+console.log('Environment check:');
+console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
+console.log('EMAIL_PASSWORD exists:', !!process.env.EMAIL_PASSWORD);
+console.log('PORT:', port);
+
 // Initialize transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -25,11 +39,37 @@ const transporter = nodemailer.createTransport({
 // Contact form endpoint
 app.post('/api/contact', async (req, res) => {
   try {
+    console.log('Received contact form submission:', {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      inquiryType: req.body.inquiryType,
+      hasMessage: !!req.body.message
+    });
+
     const { name, email, phone, inquiryType, message } = req.body;
 
     // Validate required fields
     if (!name || !email || !phone || !inquiryType || !message) {
+      console.log('Validation failed - missing fields:', {
+        name: !!name,
+        email: !!email,
+        phone: !!phone,
+        inquiryType: !!inquiryType,
+        message: !!message
+      });
       return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Check if email credentials are set
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.log('Email credentials missing:', {
+        hasUser: !!process.env.EMAIL_USER,
+        hasPassword: !!process.env.EMAIL_PASSWORD
+      });
+      return res.status(500).json({ 
+        error: 'Server configuration error. Please contact the administrator.'
+      });
     }
 
     // Format date for email
@@ -105,10 +145,17 @@ app.post('/api/contact', async (req, res) => {
       `,
     };
 
+    console.log('Attempting to send email to:', process.env.EMAIL_USER);
     await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully');
+    
     res.status(200).json({ message: 'Email sent successfully' });
   } catch (error) {
-    console.error('Email sending error:', error.message);
+    console.error('Email sending error:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    });
     res.status(500).json({ 
       error: 'Failed to send email',
       details: error.message 
@@ -116,11 +163,22 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-// Health check endpoint
+// Health check endpoint with logging
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+  console.log('Health check requested');
+  const status = {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: {
+      nodeEnv: process.env.NODE_ENV,
+      hasEmailConfig: !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD)
+    }
+  };
+  console.log('Health check response:', status);
+  res.json(status);
 });
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+  console.log('Environment:', process.env.NODE_ENV || 'development');
 }); 

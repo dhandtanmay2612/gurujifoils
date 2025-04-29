@@ -13,7 +13,7 @@ app.use(express.json());
 // Simple log to confirm env vars are available
 console.log('Email service initialized');
 
-app.post('/api/contact', async (req, res) => {
+app.post('/contact', async (req, res) => {
   try {
     const { name, email, phone, inquiryType, message } = req.body;
 
