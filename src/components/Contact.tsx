@@ -9,11 +9,12 @@ import { toast } from 'sonner';
 
 // Helper to determine the correct API URL based on environment
 const getApiUrl = () => {
-  // Check if we're in production (Vercel) or development
-  // In production, use a relative path which will be handled by Vercel's serverless functions
-  return process.env.NODE_ENV === 'production' 
-    ? '/api/contact' 
-    : 'http://localhost:8081/api/contact';
+  // In development, use the API server port (3000)
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000/api/contact';
+  }
+  // In production, use the relative path
+  return '/api/contact';
 };
 
 const Contact = () => {
@@ -51,7 +52,10 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch(getApiUrl(), {
+      const apiUrl = getApiUrl();
+      console.log('Attempting to send request to:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +66,9 @@ const Contact = () => {
       // Dismiss the loading toast
       toast.dismiss(loadingToast);
       
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (!response.ok) {
         toast.error(

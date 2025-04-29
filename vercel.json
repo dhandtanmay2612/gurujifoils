@@ -2,20 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/api/contact.js",
-      "use": "@vercel/node"
-    },
-    {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "src/api/contact.js"
-    },
     {
       "src": "/(.*)",
       "dest": "/dist/$1"
