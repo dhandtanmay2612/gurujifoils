@@ -171,7 +171,12 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: {
       nodeEnv: process.env.NODE_ENV,
-      hasEmailConfig: !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD)
+      hasEmailConfig: !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD),
+      availableEnvVars: Object.keys(process.env).filter(key => 
+        key.includes('EMAIL') || key.includes('USER') || key.includes('PASSWORD')
+      ),
+      emailUserExists: !!process.env.EMAIL_USER,
+      emailPasswordExists: !!process.env.EMAIL_PASSWORD
     }
   };
   console.log('Health check response:', status);
