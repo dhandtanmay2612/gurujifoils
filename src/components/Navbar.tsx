@@ -1,59 +1,97 @@
-
-import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const toggleMenu = () => setIsOpen(!isOpen);
-  
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-md' : 'bg-transparent'}`}>
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <a href="#hero" className="flex items-center">
-          <h1 className={`text-xl md:text-2xl font-bold font-heading ${scrolled ? 'text-guruji-deep-blue' : 'text-white'}`}>
-            GURUJI <span className="text-guruji-gold">FOILS</span>
-          </h1>
-        </a>
-        
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-6">
-          <a href="#about" className={`nav-link ${scrolled ? 'text-gray-700' : 'text-white'}`}>About</a>
-          <a href="#products" className={`nav-link ${scrolled ? 'text-gray-700' : 'text-white'}`}>Products</a>
-          <a href="#operations" className={`nav-link ${scrolled ? 'text-gray-700' : 'text-white'}`}>Operations</a>
-          <a href="#gallery" className={`nav-link ${scrolled ? 'text-gray-700' : 'text-white'}`}>Gallery</a>
-          <a href="#contact" className={`nav-link ${scrolled ? 'text-gray-700' : 'text-white'}`}>Contact</a>
-        </nav>
+    <nav className="fixed w-full z-50 backdrop-blur-md bg-black/30 border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center">
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+                DriveSafeAI
+              </span>
+            </Link>
+          </div>
 
-        {/* Mobile Menu Button */}
-        <Button variant="ghost" size="icon" onClick={toggleMenu} className="md:hidden">
-          {isOpen ? <X className={`h-6 w-6 ${scrolled ? 'text-gray-700' : 'text-white'}`} /> : <Menu className={`h-6 w-6 ${scrolled ? 'text-gray-700' : 'text-white'}`} />}
-        </Button>
+          {/* Desktop Navigation */}
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-4">
+              <NavLink to="/">Home</NavLink>
+              <NavLink to="/features">Features</NavLink>
+              <NavLink to="/scoreboard">Scoreboard</NavLink>
+              <NavLink to="/about">About Us</NavLink>
+              <NavLink to="/contact">Contact</NavLink>
+              <Link
+                to="/login"
+                className="px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:opacity-90 transition-opacity"
+              >
+                Login
+              </Link>
+            </div>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-white/10 focus:outline-none"
+            >
+              <span className="sr-only">Open main menu</span>
+              {!isOpen ? (
+                <svg className="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              ) : (
+                <svg className="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Mobile Navigation */}
-      <div className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-screen bg-white shadow-lg' : 'max-h-0'}`}>
-        <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
-          <a href="#about" className="nav-link text-gray-700" onClick={toggleMenu}>About</a>
-          <a href="#products" className="nav-link text-gray-700" onClick={toggleMenu}>Products</a>
-          <a href="#operations" className="nav-link text-gray-700" onClick={toggleMenu}>Operations</a>
-          <a href="#gallery" className="nav-link text-gray-700" onClick={toggleMenu}>Gallery</a>
-          <a href="#contact" className="nav-link text-gray-700" onClick={toggleMenu}>Contact</a>
+      {isOpen && (
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <MobileNavLink to="/">Home</MobileNavLink>
+            <MobileNavLink to="/features">Features</MobileNavLink>
+            <MobileNavLink to="/scoreboard">Scoreboard</MobileNavLink>
+            <MobileNavLink to="/about">About Us</MobileNavLink>
+            <MobileNavLink to="/contact">Contact</MobileNavLink>
+            <Link
+              to="/login"
+              className="block px-3 py-2 rounded-md text-base font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600"
+            >
+              Login
+            </Link>
+          </div>
         </div>
-      </div>
-    </header>
+      )}
+    </nav>
   );
 };
+
+const NavLink = ({ to, children }: { to: string; children: React.ReactNode }) => (
+  <Link
+    to={to}
+    className="text-white hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+  >
+    {children}
+  </Link>
+);
+
+const MobileNavLink = ({ to, children }: { to: string; children: React.ReactNode }) => (
+  <Link
+    to={to}
+    className="text-white hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium"
+  >
+    {children}
+  </Link>
+);
 
 export default Navbar;

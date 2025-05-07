@@ -1,0 +1,103 @@
+/* General hover effect for all sections */
+.section, 
+.card, 
+.container, 
+.nav-item, 
+.button, 
+.feature-box, 
+.info-block {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Enhanced movement and glow on hover */
+.section:hover, 
+.card:hover, 
+.container:hover, 
+.nav-item:hover, 
+.button:hover, 
+.feature-box:hover, 
+.info-block:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+              0 0 20px rgba(59, 130, 246, 0.5);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Glowing border effect on hover */
+.section:hover::before, 
+.card:hover::before, 
+.container:hover::before, 
+.nav-item:hover::before, 
+.button:hover::before, 
+.feature-box:hover::before, 
+.info-block:hover::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    rgba(59, 130, 246, 0.5),
+    rgba(147, 51, 234, 0.5),
+    rgba(59, 130, 246, 0.5)
+  );
+  z-index: -1;
+  border-radius: inherit;
+  animation: borderGlow 3s linear infinite;
+}
+
+/* Inner content protection */
+.section::after, 
+.card::after, 
+.container::after, 
+.nav-item::after, 
+.button::after, 
+.feature-box::after, 
+.info-block::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: inherit;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+/* Enhanced pulsing animation for the border */
+@keyframes borderGlow {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+}
+
+/* Special effect for buttons */
+.button:hover {
+  background: linear-gradient(45deg, 
+    rgba(59, 130, 246, 0.8),
+    rgba(147, 51, 234, 0.8)
+  );
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3),
+              0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+/* Special effect for cards */
+.card:hover,
+.feature-box:hover {
+  background: rgba(31, 41, 55, 0.8);
+  backdrop-filter: blur(10px);
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(59, 130, 246, 0.5);
+} 
