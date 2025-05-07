@@ -19,4 +19,21 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // Ignore "Module is externalized for browser compatibility" warnings
+        if (
+          warning.code === 'UNRESOLVED_IMPORT' && 
+          warning.message.includes('@/components/ui/')
+        ) {
+          return;
+        }
+        warn(warning);
+      },
+    },
+  },
 }));

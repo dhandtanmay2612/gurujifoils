@@ -6,12 +6,19 @@ let transporter: nodemailer.Transporter | null = null;
 
 // Initialize the transporter
 async function initializeTransporter() {
+  console.log('Initializing transporter...');
+  console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
+  
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-    console.error('Missing email configuration');
+    console.error('Missing email configuration:', {
+      hasEmailUser: !!process.env.EMAIL_USER,
+      hasEmailPassword: !!process.env.EMAIL_PASSWORD
+    });
     throw new Error('Email configuration is missing');
   }
 
   if (!transporter) {
+    console.log('Creating new transporter...');
     transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -22,6 +29,7 @@ async function initializeTransporter() {
 
     // Verify the connection
     try {
+      console.log('Verifying transporter connection...');
       await transporter.verify();
       console.log('Email server connection verified');
     } catch (error) {
@@ -49,6 +57,7 @@ export async function POST(req: NextRequest) {
 
     // Validate required fields
     if (!name || !email || !phone || !inquiryType || !message) {
+      console.log('Missing required fields:', { name, email, phone, inquiryType, message });
       return NextResponse.json(
         { error: 'All fields are required' },
         { status: 400 }
@@ -58,6 +67,12 @@ export async function POST(req: NextRequest) {
     // Basic validation
     if (typeof name !== 'string' || typeof email !== 'string' || 
         typeof phone !== 'string' || typeof message !== 'string') {
+      console.log('Invalid data types:', { 
+        name: typeof name, 
+        email: typeof email, 
+        phone: typeof phone, 
+        message: typeof message 
+      });
       return NextResponse.json(
         { error: 'Invalid data types provided' },
         { status: 400 }
@@ -66,6 +81,7 @@ export async function POST(req: NextRequest) {
 
     // Simple email validation
     if (!email.includes('@')) {
+      console.log('Invalid email format:', email);
       return NextResponse.json(
         { error: 'Please enter a valid email address' },
         { status: 400 }
@@ -75,6 +91,7 @@ export async function POST(req: NextRequest) {
     // Simple phone validation (just check if it has 10 digits after removing non-digits)
     const cleanPhone = phone.replace(/\D/g, '');
     if (cleanPhone.length !== 10) {
+      console.log('Invalid phone number:', phone);
       return NextResponse.json(
         { error: 'Please enter a valid 10-digit phone number' },
         { status: 400 }
@@ -119,6 +136,7 @@ export async function POST(req: NextRequest) {
     console.error('Error in contact form API:', {
       error,
       errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
     });
     
     return NextResponse.json(
