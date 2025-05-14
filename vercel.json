@@ -22,5 +22,18 @@
       "src": "/(.*)",
       "dest": "/dist/$1"
     }
-  ]
-} 
+  ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite"
+}
