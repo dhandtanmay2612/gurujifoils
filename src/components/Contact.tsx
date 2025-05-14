@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 // Helper to determine the correct API URL based on environment
 const getApiUrl = () => {
   // In development, use the API server port (3000)
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     return 'http://localhost:3000/api/contact';
   }
   // In production, use the relative path

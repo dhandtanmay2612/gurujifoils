@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/AuthContext';
+import { toast } from 'sonner';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -9,11 +11,41 @@ const Login = () => {
     password: '',
     confirmPassword: '',
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { signIn, signUp } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
+    setError(null);
+    setLoading(true);
+
+    try {
+      console.log('Login: Attempting to sign in with email:', formData.email);
+      if (isLogin) {
+        const { error } = await signIn(formData.email, formData.password);
+        if (error) throw error;
+        console.log('Login: Sign in successful, user should be redirected by AuthContext');
+        toast.success('Successfully logged in!');
+        navigate('/dashboard');
+      } else {
+        if (formData.password !== formData.confirmPassword) {
+          toast.error('Passwords do not match');
+          return;
+        }
+        const { error } = await signUp(formData.email, formData.password);
+        if (error) throw error;
+        toast.success('Registration successful! Please check your email to verify your account.');
+        setIsLogin(true);
+      }
+    } catch (err: any) {
+      console.error('Login: Error during sign in:', err);
+      setError(err.message || 'Failed to sign in');
+      toast.error(err.message || 'Failed to sign in');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,102 +56,84 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
-      >
-        <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 border border-white/10 shadow-2xl">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
-            </h2>
-            <p className="text-gray-400 mt-2">
-              {isLogin
-                ? 'Sign in to access your DriveSafeAI dashboard'
-                : 'Join DriveSafeAI to start earning rewards'}
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
+            Sign in to your account
+          </h2>
+        </div>
+        
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                Email
+              <label htmlFor="email" className="sr-only">
+                Email address
               </label>
               <input
-                type="email"
                 id="email"
                 name="email"
+                type="email"
+                required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white placeholder-gray-400 transition-colors"
-                placeholder="Enter your email"
-                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
               />
             </div>
-
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
-                type="password"
                 id="password"
                 name="password"
+                type="password"
+                required
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white placeholder-gray-400 transition-colors"
-                placeholder="Enter your password"
-                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
               />
             </div>
+          </div>
 
-            {!isLogin && (
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white placeholder-gray-400 transition-colors"
-                  placeholder="Confirm your password"
-                  required
-                />
+          {error && (
+            <div className="rounded-md bg-red-900/50 p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-200">
+                    {error}
+                  </h3>
+                </div>
               </div>
-            )}
+            </div>
+          )}
 
+          <div>
             <button
               type="submit"
-              className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold hover:opacity-90 transition-opacity"
+              disabled={loading}
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
+                loading
+                  ? 'bg-blue-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+              }`}
             >
-              {isLogin ? 'Sign In' : 'Create Account'}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+              {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
+        </form>
 
-          <div className="mt-8 pt-6 border-t border-gray-700">
-            <div className="text-center text-sm text-gray-400">
-              <Link to="/" className="hover:text-white transition-colors">
-                ← Back to Home
-              </Link>
-            </div>
-          </div>
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+          </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

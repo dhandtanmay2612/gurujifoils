@@ -1,40 +1,40 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Features from './components/Features';
-import DriveCredits from './components/DriveCredits';
+import Home from './pages/Home';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Chatbot from './components/Chatbot';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './AuthContext';
 import './styles/hover-effects.css';
-
-const Home = () => {
-  return (
-    <>
-      <Hero />
-      <Features />
-      <DriveCredits />
-    </>
-  );
-};
 
 const App = () => {
   return (
     <Router>
-      <div className="min-h-screen bg-black text-white">
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          {/* Add more routes as we create them */}
-          <Route path="/features" element={<div>Features Page</div>} />
-          <Route path="/scoreboard" element={<div>Scoreboard Page</div>} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
-        </Routes>
-        <Chatbot />
-      </div>
+      <AuthProvider>
+        <div className="min-h-screen bg-black text-white">
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+          <Chatbot />
+        </div>
+      </AuthProvider>
     </Router>
   );
 };

@@ -7,12 +7,12 @@ let transporter: nodemailer.Transporter | null = null;
 // Initialize the transporter
 async function initializeTransporter() {
   console.log('Initializing transporter...');
-  console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
+  console.log('EMAIL_USER exists:', !!import.meta.env.VITE_EMAIL_USER);
   
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+  if (!import.meta.env.VITE_EMAIL_USER || !import.meta.env.VITE_EMAIL_PASSWORD) {
     console.error('Missing email configuration:', {
-      hasEmailUser: !!process.env.EMAIL_USER,
-      hasEmailPassword: !!process.env.EMAIL_PASSWORD
+      hasEmailUser: !!import.meta.env.VITE_EMAIL_USER,
+      hasEmailPassword: !!import.meta.env.VITE_EMAIL_PASSWORD
     });
     throw new Error('Email configuration is missing');
   }
@@ -22,8 +22,8 @@ async function initializeTransporter() {
     transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
+        user: import.meta.env.VITE_EMAIL_USER,
+        pass: import.meta.env.VITE_EMAIL_PASSWORD,
       },
     });
 
@@ -100,8 +100,8 @@ export async function POST(req: NextRequest) {
 
     // Prepare email content
     const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
+      from: import.meta.env.VITE_EMAIL_USER,
+      to: import.meta.env.VITE_EMAIL_USER,
       subject: `New Contact Form Submission - ${inquiryType}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

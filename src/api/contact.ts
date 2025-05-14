@@ -32,15 +32,15 @@ export default async function handler(
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
+        user: import.meta.env.VITE_EMAIL_USER,
+        pass: import.meta.env.VITE_EMAIL_PASSWORD,
       },
     });
 
     // Prepare email content
     const mailOptions = {
-      from: `"Guruji Foils Website" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
+      from: `"Guruji Foils Website" <${import.meta.env.VITE_EMAIL_USER}>`,
+      to: import.meta.env.VITE_EMAIL_USER,
       subject: `📬 New Inquiry: ${inquiryType} from ${name}`,
       html: `
         <!DOCTYPE html>
