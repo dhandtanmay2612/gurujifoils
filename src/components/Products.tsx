@@ -55,8 +55,8 @@ const Products = () => {
     {
       title: "Decorative Foils",
       description: "Add elegance and sparkle to every surface",
-      icon: "/images/deco-foils.jpeg",
-      fullDescription: "Ideal for enhancing packaging, gifts, and craft projects. Our decorative foils bring luxury and charm to any creation."
+      icon: "/images/deco_foils.jpeg",
+      fullDescription: "Our decorative foils are perfect for adding a touch of elegance and sparkle to packaging, crafts, and a variety of surfaces. Available in multiple finishes and colors to suit every need."
     }
   ];
 
@@ -81,7 +81,7 @@ const Products = () => {
             <div 
               key={index}
               onClick={() => handleCardClick(product)}
-              className={`product-card cursor-pointer transition-all duration-500 delay-${index * 100}`}
+              className={`product-card cursor-pointer transition-all duration-500 delay-${index * 100} ${index === products.length - 1 ? 'col-span-1 md:col-start-2' : ''}`}
             >
               <div className="h-48 bg-center bg-cover" style={{ backgroundImage: `url(${product.icon})` }}></div>
               <div className="p-6">

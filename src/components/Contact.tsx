@@ -157,7 +157,11 @@ const Contact = () => {
                   <div className="ml-4">
                     <h4 className="font-semibold mb-1">Address</h4>
                     <p className="text-gray-600">
-                      Choudhary Mohalla, Village DhulSiras, Near Bus Stand, Gurugram, Haryana, India
+                      GURUJI FOILS<br />
+                      Choudhary Mohalla, Village DhulSiras<br />
+                      Near Bus stand, New Delhi, South West Delhi, Delhi, 110077<br />
+                      <br />
+                      <strong>GSTIN / UIN :</strong> 07DBHPK9559K2ZV
                     </p>
                   </div>
                 </div>
@@ -218,88 +222,70 @@ const Contact = () => {
             {/* Contact Form */}
             <div className="bg-white rounded-lg shadow-lg p-8">
               <h3 className="text-2xl font-bold font-heading text-guruji-deep-blue mb-6">Send Us a Message</h3>
-
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium mb-2 text-black">Name *</label>
                   <Input
-                    id="name"
+                    type="text"
                     name="name"
+                    placeholder="Your Name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Your Name"
                     required
-                    className="text-black"
-                    disabled={isSubmitting}
+                    className="w-full"
                   />
                 </div>
-
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-2 text-black">Email *</label>
                   <Input
-                    id="email"
-                    name="email"
                     type="email"
+                    name="email"
+                    placeholder="Your Email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="your.email@example.com"
                     required
-                    className="text-black"
-                    disabled={isSubmitting}
+                    className="w-full"
                   />
                 </div>
-
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium mb-2 text-black">Phone Number *</label>
                   <Input
-                    id="phone"
-                    name="phone"
                     type="tel"
+                    name="phone"
+                    placeholder="Your Phone Number"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="+91-XXXXXXXXXX"
                     required
-                    pattern="[0-9]{10}"
-                    title="Please enter a valid 10-digit phone number"
-                    className="text-black"
-                    disabled={isSubmitting}
+                    className="w-full"
                   />
                 </div>
-
                 <div>
-                  <label htmlFor="inquiryType" className="block text-sm font-medium mb-2 text-black">Inquiry Type *</label>
-                  <Select onValueChange={handleSelectChange} value={formData.inquiryType} disabled={isSubmitting}>
-                    <SelectTrigger className="text-black">
-                      <SelectValue placeholder="Select inquiry type" />
+                  <Select
+                    value={formData.inquiryType}
+                    onValueChange={handleSelectChange}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Inquiry Type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="general">General Inquiry</SelectItem>
-                      <SelectItem value="quote">Request a Quote</SelectItem>
-                      <SelectItem value="partnership">Partnership Opportunity</SelectItem>
-                      <SelectItem value="support">Customer Support</SelectItem>
+                      <SelectItem value="product">Product Inquiry</SelectItem>
+                      <SelectItem value="order">Order Status</SelectItem>
+                      <SelectItem value="support">Technical Support</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium mb-2 text-black">Message *</label>
                   <Textarea
-                    id="message"
                     name="message"
+                    placeholder="Your Message"
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Your message..."
-                    rows={5}
                     required
-                    className="text-black"
-                    disabled={isSubmitting}
+                    className="w-full min-h-[150px]"
                   />
                 </div>
-
-                <Button 
-                  type="submit" 
-                  className="flex items-center gap-2 w-full bg-guruji-purple hover:bg-guruji-deep-blue transition-colors"
+                <Button
+                  type="submit"
                   disabled={isSubmitting}
+                  className="w-full flex items-center justify-center gap-2 bg-guruji-purple hover:bg-guruji-deep-blue transition-colors text-white"
                 >
                   {isSubmitting ? (
                     <>
@@ -314,22 +300,6 @@ const Contact = () => {
                   )}
                 </Button>
               </form>
-            </div>
-          </div>
-
-          {/* Optional Google Map */}
-          <div className="mt-12">
-            <div className="rounded-lg overflow-hidden shadow-lg h-80 bg-gray-200">
-              {/* Replace the src with your actual Google Maps Embed URL */}
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3500.47787418279!2d77.0618742753283!3d28.672588782408886!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d023b55c7b3b1%3A0x8a6a5e8a7e9b7b7f!2sDhulsiras%2C%20Delhi!5e0!3m2!1sen!2sin!4v1703780758979!5m2!1sen!2sin"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
             </div>
           </div>
         </div>

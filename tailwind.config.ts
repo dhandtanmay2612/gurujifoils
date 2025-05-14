@@ -128,6 +128,17 @@ export default {
             backgroundPosition: "0% 50%",
           },
         },
+        gradient: {
+          "0%": {
+            backgroundPosition: "0% 50%",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+          },
+          "100%": {
+            backgroundPosition: "0% 50%",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -136,11 +147,13 @@ export default {
         "color-shift": "color-shift 8s infinite",
         float: "float 6s ease-in-out infinite",
         "gradient-shift": "gradient-shift 8s ease infinite",
+        gradient: "gradient 15s ease infinite",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "foil-gradient":
           "linear-gradient(90deg, #C0C0C0, #E0E0E0, #FFD700, #D4AF37, #7851A9, #C0C0C0)",
+        "guruji-gradient": "linear-gradient(135deg, #d4145a 0%, #9327f0 50%, #ff9900 100%)",
       },
     },
   },
